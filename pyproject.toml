@@ -1,0 +1,17 @@
+[project]
+name = "transform-lite"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "dlt[duckdb]>=1.18.2",
+    "rust-just>=1.43.0",
+    "jinja2>=3.1.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.0",
+]
+
+[tool.pytest.ini_options]
+pythonpath = "."
