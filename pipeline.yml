@@ -1,0 +1,5 @@
+name: transform-lite
+schedule: daily
+
+default_connections:
+  duckdb: "duckdb-default"
