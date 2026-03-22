@@ -1,5 +1,5 @@
 """@bruin
-name: load_customers
+name: raw_customers
 type: python
 description: "Load raw customers from CSV into DuckDB using dlt"
 columns:

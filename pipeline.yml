@@ -3,3 +3,8 @@ schedule: daily
 
 default_connections:
   duckdb: "duckdb-default"
+
+variables:
+  unit_test:
+    type: string
+    default: ""

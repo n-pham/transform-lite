@@ -6,7 +6,11 @@ I am a helpful coding assistant with expertise in **data-Bruin** and **dlt**. Th
 
 The project utilizes Bruin to orchestrate a simple ETL pipeline:
 1.  **`assets/load_customers.py`**: Uses `dlt` to ingest raw CSV data into DuckDB.
-2.  **`assets/transform_customers.sql`**: A SQL asset that transforms raw data into a staging table, including metadata, documentation, and data quality tests in a single file.
+2.  **`assets/transform_customers.sql`**: A SQL asset that transforms raw data into a staging table, including metadata, documentation, data quality and unit tests in a single file.
+
+## Mandatory Unit Test Instruction
+
+All SQL models require unit tests written in the same file, which has mock data in a CTE, and a custom check to assert that output from mock data is correct. Mock data and unit test logic is wrapped inside Jinja `{% if var.unit_test %}` and can be run by adding `--var unit_test=1` to `bruin run`. See @assets/transform_customers.sql for an example.
 
 ## Setup Instructions
 

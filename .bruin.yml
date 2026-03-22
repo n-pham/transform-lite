@@ -1,19 +1,7 @@
 default_environment: default
-vars:
-    env: "default"
 environments:
-    default:
-        vars:
-            env: "default" 
-        connections:
-            duckdb:
-                - name: duckdb-default
-                  path: jaffle_shop.duckdb
-    test:
-        vars:
-            env: "test" # This overrides the global 'env' when using --env test
-        connections:
-            duckdb:
-                # This creates a local, in-memory database for your tests
-                - name: "duckdb-default"
-                  path: ":memory:"
+  default:
+    connections:
+      duckdb:
+        - name: duckdb-default
+          path: jaffle_shop.duckdb

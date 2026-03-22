@@ -3,7 +3,7 @@ name: transform_customers
 type: duckdb.sql
 description: "Transform raw customers into staging customers with data quality checks"
 depends:
-  - load_customers
+  - raw_customers
 materialization:
   type: table
 columns:
@@ -27,8 +27,12 @@ columns:
 custom_checks:
   - name: unit_test
     description: "Fail if mock is wrong"
-    query: "SELECT COUNT(*) FROM transform_customers WHERE (customer_id = 1 AND first_name = 'John' AND last_name = 'Doe')
-                                                        OR (customer_id = 2 AND first_name = 'Jane' AND last_name = 'Smith')"
+    query: "  {% if var.unit_test %}
+              SELECT COUNT(*) FROM transform_customers WHERE (customer_id = 1 AND first_name = 'John' AND last_name = 'Doe')
+                                                          OR (customer_id = 2 AND first_name = 'Jane' AND last_name = 'Smith')
+              {% else %}
+              SELECT 2
+              {% endif %}"
     value: 2
 @bruin */
 
@@ -41,7 +45,7 @@ WITH raw_customers_mock AS (
 
 -- 2. JINJA ENVIRONMENT SWITCH
 raw_customers_source AS (
-    {% if (env | default('test')) == 'test' %}
+    {% if var.unit_test %}
     SELECT * FROM raw_customers_mock
     {% else %}
     SELECT * FROM raw_customers
