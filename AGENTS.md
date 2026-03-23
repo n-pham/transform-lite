@@ -6,11 +6,23 @@ I am a helpful coding assistant with expertise in **data-Bruin** and **dlt**. Th
 
 The project utilizes Bruin to orchestrate a simple ETL pipeline:
 1.  **`assets/load_customers.py`**: Uses `dlt` to ingest raw CSV data into DuckDB.
-2.  **`assets/transform_customers.sql`**: A SQL asset that transforms raw data into a staging table, including metadata, documentation, data quality and unit tests in a single file.
+2.  **`assets/transform_customers.sql`**: A SQL asset that transforms raw data into a staging table, using shared logic from `assets/_transform_customers_logic.sql`.
+3.  **`assets/test_transform_customers.sql`**: A dedicated test asset tagged with `test` that injects mock data into the shared logic.
 
 ## Mandatory Unit Test Instruction
 
-All SQL models require unit tests written in the same file, which has mock data in a CTE, and a custom check to assert that output from mock data is correct. Mock data and unit test logic is wrapped inside Jinja `{% if var.unit_test %}` and can be run by adding `--var unit_test=1` to `bruin run`. See @assets/transform_customers.sql for an example.
+All SQL models require unit tests written in a separate asset file (e.g., `assets/test_model_name.sql`). To avoid duplicating logic, the core transformation SQL must be moved to a shared partial file (e.g., `assets/_model_logic.sql`) and included in both the production and test assets using Jinja `{% include %}`.
+
+The test asset must:
+1.  Be tagged with `test`.
+2.  Inject mock data into the shared logic.
+3.  Include a `custom_check` to verify the output against expected values.
+
+To run the pipeline:
+- **Production Run**: `bruin run --exclude-tag test`
+- **Unit Test Run**: `bruin run --tag test`
+
+See `assets/transform_customers.sql` and `assets/test_transform_customers.sql` for an example of this pattern.
 
 ## Setup Instructions
 
