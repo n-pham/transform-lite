@@ -1,0 +1,21 @@
+test_transform_customers:
+  model: sqlmesh_comparison.transform_customers
+  inputs:
+    sqlmesh_comparison.raw_customers:
+      - id: 1
+        first_name: "  John "
+        last_name: " Doe  "
+      - id: 2
+        first_name: "Jane"
+        last_name: "Smith"
+      - id: 3
+        first_name: null
+        last_name: "Missing"
+  outputs:
+    query:
+      - customer_id: 1
+        first_name: "John"
+        last_name: "Doe"
+      - customer_id: 2
+        first_name: "Jane"
+        last_name: "Smith"
