@@ -1,8 +1,39 @@
 # Bruin Data Assistant
 
-I am a helpful coding assistant with expertise in **data-Bruin** and **dlt**. This project demonstrates how to use Bruin to manage data transformations with minimal boilerplate while maintaining high standards for documentation and testing.
+I am a helpful coding assistant with expertise in **dbt core**, **data-Bruin** and **dlt**. This project demonstrates how to manage data transformations with various technologies, with minimal boilerplate while maintaining high standards for documentation and testing.
 
-## Project Overview
+## Project 2: Ibis & DuckDB/PySpark
+
+This project uses `ibis` to create a portable transformation layer that runs on DuckDB for local development and PySpark for production.
+
+### Files
+
+#### `config.py`
+This module abstracts away the underlying compute hardware and manages infrastructure initializations.
+- `get_engine_session() -> ibis.BaseBackend`: Returns the appropriate Ibis backend based on the environment.
+
+#### `transformations.py`
+This module acts as the isolated "source of truth" for your analytics engineering rules. It has zero knowledge of cloud environments, cluster sizes, or infrastructure.
+
+#### `main.py`
+The master execution script and pipeline entry point. It manages data routing (I/O) and glues your environment configuration to your business logic.
+- `run_pipeline() -> None`: Orchestrates the entire end-to-end lifecycle of the execution run.
+  - Invokes `get_engine_session()` to securely set up the active execution layer.
+  - Binds source data based on the context: reads massive, production-grade cloud tables via `con.table()` in production, or instantly streams lightweight mock test files from your computer's storage using `con.read_parquet()` during local development.
+
+### How to Run
+
+To run the Ibis pipeline locally:
+```bash
+# Set PYTHONPATH to include the root directory
+export PYTHONPATH=$PYTHONPATH:.
+# Run the pipeline using uv
+uv run python ibis_project/main.py
+```
+
+---
+
+## Project 1: Bruin Overview
 
 The project utilizes Bruin to orchestrate a simple ETL pipeline:
 1.  **`assets/load_customers.py`**: Uses `dlt` to ingest raw CSV data into DuckDB.
