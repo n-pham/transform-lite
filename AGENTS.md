@@ -33,7 +33,57 @@ uv run python ibis_project/main.py
 
 ---
 
-## Project 1: Bruin Overview
+## Project 3: SQLMesh DuckDB experimental Spark API
+
+This project demonstrates how to create portable SQLMesh models using the DataFrame API. It uses `duckdb.experimental.spark.sql` for local development and `pyspark.sql` for production, allowing the same Spark DataFrame logic to run on both DuckDB and a Spark cluster.
+
+### Key Concept: Portable DataFrame Models
+
+By dynamically determining the Spark session based on the SQLMesh gateway, we can write engine-agnostic transformation logic.
+
+```python
+from sqlmesh import model
+import pandas as pd
+
+@model(
+    "my_schema.portable_model",
+    columns={"id": "int", "value": "double"}
+)
+def execute(context, **kwargs):
+    # Dynamically determine the engine based on SQLMesh's active gateway
+    if context.gateway == "local":
+        from duckdb.experimental.spark.sql import SparkSession
+        from duckdb.experimental.spark.sql import functions as F
+    else:
+        from pyspark.sql import SparkSession
+        from pyspark.sql import functions as F
+
+    # Initialize the Spark Session (either DuckDB-Spark or real Spark)
+    spark = SparkSession.builder.getOrCreate()
+    
+    # Read upstream table natively through the SQLMesh context
+    table = context.table("my_schema.upstream_table")
+    df = context.fetchdf(f"SELECT * FROM {table}")
+    
+    # Convert to Spark DataFrame (handles both pandas and spark native)
+    spark_df = spark.createDataFrame(df) if isinstance(df, pd.DataFrame) else df
+    
+    # This identical DataFrame logic runs on DuckDB locally or cluster Spark in prod
+    final_df = spark_df.filter(spark_df.value > 0).select("id", "value")
+    
+    # Branch return for efficiency: 
+    # Local DuckDB needs Pandas, but Prod Spark can handle the Spark DF directly
+    if context.gateway == "local":
+        return final_df.toPandas()
+    return final_df
+```
+
+### Setup
+
+1. Create a SQLMesh project with multiple gateways (e.g., `local` using DuckDB and `prod` using Spark).
+2. Use the `@model` decorator with the Python API.
+3. Import the appropriate `SparkSession` based on `context.gateway`.
+
 
 The project utilizes Bruin to orchestrate a simple ETL pipeline:
 1.  **`assets/load_customers.py`**: Uses `dlt` to ingest raw CSV data into DuckDB.
